@@ -18,22 +18,11 @@
                     <h6>Categories</h6>
                 </div>
                 <div class="badge-categories">
-                    <a href="" class="badge bg-primary text-decoration-none">All</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Makanan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Minuman</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Snack</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Obat-Obatan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Biskuit</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Rokok</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kosmetik</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
-                    <a href="" class="badge bg-danger text-decoration-none">Kebersihan</a>
+                    <a href="<?= base_url() ?>" class="badge bg-primary text-decoration-none">All</a>
+                    <?php foreach ($categories as $category) : ?>
+                        <a href="<?= base_url('products/category/') ?><?= $category['id'] ?>" class="badge bg-danger text-decoration-none"><?= $category['category_name'] ?></a>
+                    <?php endforeach; ?>
+                    <a href="<?= base_url('products/addcategory') ?>" class="badge bg-secondary text-decoration-none">Tambah Kategori</a>
                 </div>
             </div>
         </div>
@@ -57,7 +46,13 @@
                     <tbody>
                         <tr>
                             <th scope="row">1</th>
-                            <td>Monde Snack Gold</td>
+                            <td>
+                                <span>Monde Snack Gold</span>
+                                <div class="product-action">
+                                    <a href="" class="badge bg-primary text-decoration-none">Ubah</a>
+                                    <a href="" class="badge bg-danger text-decoration-none">Hapus</a>
+                                </div>
+                            </td>
                             <td>Rp. 5000</td>
                             <td>
                                 <a href="" class="badge bg-success text-decoration-none">Makanan</a>
