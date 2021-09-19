@@ -13,17 +13,33 @@ class Products extends CI_Controller
 
     public function index()
     {
+        // PAGINATION
+        $this->load->library('pagination');
+        // config
+        $config['base_url'] = 'http://192.168.3.5/warung-app/products/index';
+        $config['total_rows'] = $this->product->countAllProducts();
+        $config['per_page'] = 5;
+        // initialize
+        $this->pagination->initialize($config);
+
+        $data['start'] = $this->uri->segment(3);
         $db['products'] = [
             'table' => 'products',
-            'column' => 'created_at'
+            'column' => 'created_at',
+            'order' => 'DESC',
+            'limit' => $config['per_page'],
+            'start' => $data['start']
         ];
         $db['categories'] = [
             'table' => 'categories',
-            'column' => 'category_name'
+            'column' => 'category_name',
+            'order' => 'ASC'
         ];
+        $data['total_rows'] = $config['total_rows'];
         $data['products'] = $this->product->getAll($db['products']);
         $data['categories'] = $this->product->getAll($db['categories']);
         $data['id'] = null;
+        $data['pagination'] = $this->pagination->create_links();
 
         $this->load->view('templates/header');
         $this->load->view('products/products', $data);
@@ -34,8 +50,10 @@ class Products extends CI_Controller
     {
         $db['categories'] = [
             'table' => 'categories',
-            'column' => 'category_name'
+            'column' => 'category_name',
+            'order' => 'ASC'
         ];
+        $data['total_rows'] = 'NULL';
         $data['categories'] = $this->product->getAll($db['categories']);
         $data['products'] = $this->product->getProductByCategory($id);
         $data['id'] = $id;
@@ -49,7 +67,8 @@ class Products extends CI_Controller
     {
         $db['categories'] = [
             'table' => 'categories',
-            'column' => 'category_name'
+            'column' => 'category_name',
+            'order' => 'ASC'
         ];
         $data['categories'] = $this->product->getAll($db['categories']);
 
@@ -71,6 +90,7 @@ class Products extends CI_Controller
             $this->load->view('products/add-product', $data);
             $this->load->view('templates/footer');
         } else {
+            $productName = htmlspecialchars($this->input->post('product_name', true));
 
             $this->load->library('upload');
 
@@ -86,20 +106,24 @@ class Products extends CI_Controller
                     'price' => htmlspecialchars($this->input->post('price', true)),
                 ];
             } else {
+                $curFileName = $this->upload->data('file_name');
+
+                $this->imgCompress($curFileName, $productName);
+
                 $data['insertProduct'] = [
                     'product_name' => htmlspecialchars($this->input->post('product_name', true)),
                     'price' => htmlspecialchars($this->input->post('price', true)),
-                    'image' => $this->upload->data('file_name')
+                    'image' => $curFileName
                 ];
             }
 
-            $productName = htmlspecialchars($this->input->post('product_name', true));
             $data['insertProductCategories'] = $this->input->post('category_id');
 
             // INSERT
             $this->product->addProductOrCategory($data['insertProduct'], 'products');
             $this->product->addProductCategories($data['insertProductCategories'], $productName);
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Data Barang ' . $productName . ' Berhasil di Tambahkan</div>');
+            // $this->imgCompress($curFileName);
             redirect('products');
         }
     }
@@ -135,7 +159,8 @@ class Products extends CI_Controller
 
         $db['categories'] = [
             'table' => 'categories',
-            'column' => 'category_name'
+            'column' => 'category_name',
+            'order' => 'ASC'
         ];
 
         $data['product'] = $this->product->getSingleProduct($id);
@@ -166,7 +191,6 @@ class Products extends CI_Controller
         } else {
             $this->load->library('upload');
 
-
             $config['upload_path'] = './assets/img';
             $config['allowed_types'] = 'jpg|jpeg|png';
             $config['max_size'] =  '10240';
@@ -181,11 +205,20 @@ class Products extends CI_Controller
                     'image' => $data['product']['image']
                 ];
             } else {
+                $old_image = $data['product']['image'];
+                if ($old_image != 'default.png') {
+                    unlink(FCPATH . 'assets/img/' . $old_image);
+                }
+
+                $curFileName = $this->upload->data('file_name');
+
+                $this->imgCompress($curFileName, $data['product']);
+
                 $data['insertProduct'] = [
                     'id' => $this->input->post('id', true),
                     'product_name' => htmlspecialchars($this->input->post('product_name', true)),
                     'price' => htmlspecialchars($this->input->post('price', true)),
-                    'image' => $this->upload->data('file_name')
+                    'image' => $curFileName
                 ];
             }
 
@@ -218,7 +251,8 @@ class Products extends CI_Controller
     {
         $db['categories'] = [
             'table' => 'categories',
-            'column' => 'category_name'
+            'column' => 'category_name',
+            'order' => 'ASC'
         ];
 
         $data['categories'] = $this->product->getAll($db['categories']);
@@ -291,7 +325,82 @@ class Products extends CI_Controller
 
                 $output .= '
                             </td>
-                            <td class="col-2"><img src="' . base_url('assets/img/' . $product['image']) . '" class="img-fluid"></td>
+                            <td class="col-2">
+                                <a href="#" class="text-decoration-none show-image" data-bs-toggle="modal" data-bs-target="#exampleModal" data-prod-name="' . $product['product_name'] . '" data-img="' . $product['image'] . '">
+                                    <img src="' . base_url('assets/img/' . $product['image']) . '" class="img-fluid">
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                ';
+            }
+        } else {
+            $output .= '
+                    <tr>
+                        <td colspan="5">Produk Tidak Ditemukan</td>
+                    </tr>
+                </tbody>
+            ';
+        }
+        $output .= '</table>';
+        echo $output;
+    }
+
+    public function searchProductByCategory()
+    {
+        $keyword = '';
+        $idCategory = $this->input->get('id-category');
+        $output = '';
+
+        if ($this->input->get('cari-barang')) {
+            $keyword = $this->input->get('cari-barang');
+        }
+
+        $products = $this->product->liveSearchByCategory($keyword, $idCategory);
+
+        $output .= '
+            <table class="table table-striped table-sm">
+            <thead>
+                <tr class="d-flex">
+                    <th scope="col">#</th>
+                    <th scope="col" class="col-4">Nama Barang</th>
+                    <th scope="col" class="col-3">Harga</th>
+                    <th scope="col" class="col-3">Kategori</th>
+                    <th scope="col" class="col-2">Gambar</th>
+                </tr>
+            </thead>
+        ';
+        if ($products->num_rows() > 0) {
+            $i = 1;
+            foreach ($products->result_array() as $product) {
+
+                $productCategories = $this->product->getProductCategory($product['id']);
+
+                $output .= '
+                    <tr class="d-flex">
+                        <th scope="row">' . $i++ . '</th>
+                        <td class="col-4">
+                            <span>' . $product['product_name'] . '</span>
+                            <div class="product-action">
+                            <a href="' . base_url('products/updateproduct/' . $product['id']) . '" class="badge bg-primary text-decoration-none">Ubah</a>
+                                <a onclick="return confirm()" href="' . base_url('products/deleteproduct/' . $product['id']) . '" class="badge bg-danger text-decoration-none">Hapus</a>
+                            </div>
+                        </td>
+                        <td class="col-3">Rp ' . $product['price'] . '</td>
+                        <td class="col-3">
+                ';
+
+                foreach ($productCategories as $productCategory) {
+                    $output .= '<a href="" class="badge bg-success text-decoration-none mx-2">' . $productCategory['category_name'] . '</a>';
+                }
+
+                $output .= '
+                            </td>
+                            <td class="col-2">
+                                <a href="#" class="text-decoration-none show-image" data-bs-toggle="modal" data-bs-target="#exampleModal" data-prod-name="' . $product['product_name'] . '" data-img="' . $product['image'] . '">
+                                    <img src="' . base_url('assets/img/' . $product['image']) . '" class="img-fluid">
+                                </a>
+                            </td>
                         </tr>
                     </tbody>
                 ';
@@ -323,5 +432,36 @@ class Products extends CI_Controller
     public function is_exist($str)
     {
         $result = $this->product->isExist($str);
+    }
+
+    // IMAGE COMPRESS 
+    private function imgCompress($fileName, $data)
+    {
+        $sourceFile = FCPATH . 'assets/img/' . $fileName;
+        $targetFile = FCPATH . 'assets/img/';
+
+        $config['image_library'] = 'gd2';
+        $config['source_image'] = $sourceFile;
+        $config['new_image'] = $targetFile;
+        $config['maintain_ratio'] = TRUE;
+        $config['width'] = 250;
+
+        $this->load->library('image_lib', $config);
+
+        if (!$this->image_lib->resize()) {
+            $imageError = $this->image_lib->display_errors();
+            $this->db->set('image', 'default.png');
+            if (!is_array($data)) {
+                $this->db->where('product_name', $data);
+            } else {
+                $this->db->where('id', $data['id']);
+            }
+            $this->db->update('products');
+            unlink(FCPATH . 'assets/img/' . $fileName);
+            $this->session->set_flashdata('image-error', '<div class="alert alert-danger" role="alert">' . $imageError . '</div>');
+            redirect('products');
+        }
+
+        $this->image_lib->clear();
     }
 }

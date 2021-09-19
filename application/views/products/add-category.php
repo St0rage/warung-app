@@ -1,6 +1,6 @@
 <section class="main">
     <div class="container">
-        <div class="row justify-content-center mt-3">
+        <div class="row justify-content-center mt-3 main-app">
             <div class="col-lg-6">
                 <h3 class="mb-3">Tambah Kategori</h3>
                 <form method="post" action="<?= base_url('products/addcategory') ?>">

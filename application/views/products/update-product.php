@@ -1,6 +1,6 @@
 <section class="main">
     <div class="container">
-        <div class="row justify-content-center mt-3">
+        <div class="row justify-content-center mt-3 main-app">
             <div class="col-lg-6">
                 <h3 class="mb-3">Ubah Data Barang</h3>
                 <!-- <form method="post"> -->
@@ -37,7 +37,7 @@
                                         </div>
                                     </div>
                                 <?php else : ?>
-                                    <div class="col-md-4">
+                                    <div class="col-md--4">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="<?= $category['id'] ?>" id="<?= $category['category_name'] ?>" name="category_id[]">
                                             <label class="form-check-label" for="<?= $category['category_name'] ?>">

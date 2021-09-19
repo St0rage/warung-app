@@ -1,6 +1,6 @@
 <section class="main">
     <div class="container">
-        <div class="row justify-content-center mt-3 mb-3">
+        <div class="row justify-content-center mt-3 mb-3 main-app">
             <div class="col-lg-6">
                 <h3 class="mb-3">Tambah Data Barang</h3>
                 <?php echo form_open_multipart('products/addproduct'); ?>

@@ -7,10 +7,18 @@ class Product_model extends CI_Model
     public function getAll($db)
     {
         $this->db->from($db['table']);
-        $this->db->order_by($db['column'], 'desc');
+        if (isset($db['limit'])) {
+            $this->db->limit($db['limit'], $db['start']);
+        }
+        $this->db->order_by($db['column'], $db['order']);
         $query = $this->db->get()->result_array();
 
         return $query;
+    }
+
+    public function countAllProducts()
+    {
+        return $this->db->get('products')->num_rows();
     }
 
     public function getSingleProduct($id)
@@ -114,8 +122,23 @@ class Product_model extends CI_Model
         $this->db->from("products");
         if ($data != '') {
             $this->db->like('product_name', $data);
+        } else {
+            $this->db->limit(5, 0);
         }
-        $this->db->order_by('product_name', 'ASC');
+        $this->db->order_by('created_at', 'DESC');
+        return $this->db->get();
+    }
+
+    public function liveSearchByCategory($data, $id)
+    {
+        $this->db->select('products.*');
+        $this->db->from('products');
+        $this->db->join('product_categories', 'products.id = product_categories.product_id');
+        $this->db->where('product_categories.category_id', $id);
+        if ($data != '') {
+            $this->db->like('products.product_name', $data, 'both');
+        }
+        $this->db->order_by('created_at', 'DESC');
         return $this->db->get();
     }
 }
