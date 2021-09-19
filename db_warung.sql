@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Waktu pembuatan: 12 Sep 2021 pada 15.59
+-- Waktu pembuatan: 19 Sep 2021 pada 13.54
 -- Versi server: 10.4.19-MariaDB
 -- Versi PHP: 8.0.6
 
@@ -100,7 +100,13 @@ INSERT INTO `products` (`id`, `product_name`, `price`, `image`, `created_at`) VA
 (76, 'Garpit', 22000, '16313630402526976249375456965987.jpg', '2021-09-11 12:24:10'),
 (77, 'Magnum Filter', 20000, '16313631952951340838136403885252.jpg', '2021-09-11 12:26:47'),
 (78, 'Djarum Super', 21000, '1631363327650406784098780814331.jpg', '2021-09-11 12:28:58'),
-(79, 'Djarum Cokelat', 15000, '16313633679838314532553670861092.jpg', '2021-09-12 13:54:48');
+(79, 'Djarum Cokelat', 15000, '16313633679838314532553670861092.jpg', '2021-09-12 13:54:48'),
+(80, 'Sikat Gigi Formula', 4000, '16319755000078288260799211035860.jpg', '2021-09-18 14:31:46'),
+(88, 'Bear Brand', 14000, '16318847863134777791544331651839.jpg', '2021-09-17 13:20:29'),
+(95, 'Pocari Sweat Kecil', 7000, '16318874666838755450780930756953.jpg', '2021-09-17 14:04:41'),
+(97, 'Cleo 1,5 L', 6000, '16318895943158533664828756349944.jpg', '2021-09-17 14:40:07'),
+(101, 'Tolak Angin', 4000, '1630849071342978626082752235391.jpg', '2021-09-18 14:29:32'),
+(102, 'Malkist Abon', 8000, '16319754147391203138515202290435.jpg', '2021-09-18 14:30:26');
 
 -- --------------------------------------------------------
 
@@ -144,7 +150,16 @@ INSERT INTO `product_categories` (`id`, `product_id`, `category_id`) VALUES
 (86, 77, 5),
 (87, 78, 5),
 (90, 79, 5),
-(92, 61, 2);
+(92, 61, 2),
+(109, 88, 2),
+(117, 95, 2),
+(119, 97, 2),
+(130, 101, 14),
+(131, 101, 7),
+(132, 102, 3),
+(133, 102, 1),
+(134, 80, 23),
+(135, 80, 8);
 
 --
 -- Indexes for dumped tables
@@ -182,13 +197,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT untuk tabel `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 
 --
 -- AUTO_INCREMENT untuk tabel `product_categories`
 --
 ALTER TABLE `product_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=136;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
